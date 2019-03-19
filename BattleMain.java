@@ -10,7 +10,7 @@ public class BattleMain
 	
 	public static void main(String[] args)
 	{
-		Shire s = Map.shireList.get(2);
+		Shire s = Map.shireList.get(0);
 		Army v = new Army("Vikings", 2, 4);
 		Army e = new Army("English", 4, 6);
 		
@@ -29,23 +29,23 @@ public class BattleMain
 		{
 			defender.numFyrd = Deck.pickCard(Deck.fyrdCards);
 			
-			killUnits(attacker, defender);
-			killUnits(defender, attacker);
+			killUnits(attacker, defender, area);
+			killUnits(defender, attacker, area);
 		}
 		else
 		{
-			killUnits(attacker, defender);
-			killUnits(defender, attacker);
+			killUnits(attacker, defender, area);
+			killUnits(defender, attacker, area);
 		}
 	}
 	
-	public static void killUnits(Army a, Army b)
+	public static void killUnits(Army a, Army b, Shire area)
 	{
 		if (a.nation.equals("Vikings"))
 		{
 			int[] rolls = rollDice(b);
 			
-			choose(b, rolls);
+			choose(b, rolls, area);
 			
 			while (rolls[0] > 0 && (a.numBerserk > 0 || a.numNorse > 0))
 			{
@@ -96,7 +96,7 @@ public class BattleMain
 		{
 			int[] rolls = rollDice(b);
 			
-			choose(b, rolls);
+			choose(b, rolls, area);
 			
 			while (rolls[0] > 0 && (a.numHouse > 0 || a.numThegn > 0 || a.numFyrd > 0))
 			{
@@ -152,20 +152,39 @@ public class BattleMain
 		}
 	}
 	
-	public static void choose(Army a, int[] choices)
+	public static void choose(Army a, int[] choices, Shire area)
 	{
+		ArrayList<Integer> locations = new ArrayList<Integer>();
+		
+		for (int i = 0; i < area.adjacentShires.size(); i++)
+		{
+			Army defenders = Map.shireList.get(area.adjacentShires.get(i) - 1).defenders;
+			
+			if (!Map.shireList.get(area.adjacentShires.get(i) - 1).isMarsh
+			&& defenders.nation.equals(a.nation) && (defenders.numBerserk > 0 || defenders.numNorse > 0 || defenders.numHouse > 0|| defenders.numThegn > 0))
+			{
+				locations.add(area.adjacentShires.get(i));
+			}
+		}
+		
+		if (locations.size() == 0)
+		{
+			System.out.println("There are no available locations to retreat to; all choices are disbanded.\n");
+			return;
+		}
+		
 		while (choices[1] > 0 || choices[2] > 0)
 		{
 			if (a.nation.equals("Vikings"))
 			{
-				System.out.println("Vikings, would you like to stay or flee?");
+				System.out.println("Vikings, would you like to stay or retreat?");
 				System.out.print("(" + choices[1] + " choices left for Berserkers and " + choices[2] + " choices left for Norsemen.)");
 				
 				@SuppressWarnings("resource")
 				Scanner decisions = new Scanner(System.in);
 				String choice = decisions.nextLine();
 				
-				while (!choice.equals("stay") && !choice.equals("flee"))
+				while (!choice.equals("stay") && !choice.equals("retreat"))
 				{
 					System.out.println("Invalid decision. Try again.");
 					choice = decisions.nextLine();
@@ -176,7 +195,7 @@ public class BattleMain
 				}
 				else
 				{
-					System.out.println("Which unit type would you like to flee?");
+					System.out.println("Which unit type would you like to retreat?");
 					
 					choice = decisions.nextLine();
 					
@@ -188,51 +207,77 @@ public class BattleMain
 					}
 					if (choice.equals("Berserkers"))
 					{
-						System.out.println("How many Berserkers would you like to flee?");
+						System.out.println("How many Berserkers would you like to retreat?");
 						
-						int numFlee = decisions.nextInt();
+						int numRetreat = decisions.nextInt();
 						
-						while (numFlee <= 0 || numFlee > choices[1])
+						while (numRetreat <= 0 || numRetreat > choices[1])
 						{
 							System.out.println("Invalid number. Try again.");
-							numFlee = decisions.nextInt();
+							numRetreat = decisions.nextInt();
 						}
 						
-						a.numBerserk -= numFlee;
-						choices[1] -= numFlee;
+						System.out.println("Which location would you like to retreat to?");
+						System.out.println(locations);
 						
-						System.out.println(numFlee + " Berserkers have fled (map locations are currently unimplemented).\n");
+						int location = decisions.nextInt();
+						
+						while (!locations.contains(location))
+						{
+							System.out.println("Invalid location. Try again.");
+							location = decisions.nextInt();
+						}
+						
+						a.numBerserk -= numRetreat;
+						choices[1] -= numRetreat;
+						
+						Map.shireList.get(location - 1).defenders.numBerserk = numRetreat;
+						
+						System.out.println(numRetreat + " Berserkers have fled to " + location + ".\n");
 						
 					}
 					else
 					{
-						System.out.println("How many Norsemen would you like to flee?");
+						System.out.println("How many Norsemen would you like to retreat?");
 						
-						int numFlee = decisions.nextInt();
+						int numRetreat = decisions.nextInt();
 						
-						while (numFlee <= 0 || numFlee > choices[2])
+						while (numRetreat <= 0 || numRetreat > choices[2])
 						{
 							System.out.println("Invalid number. Try again.");
-							numFlee = decisions.nextInt();
+							numRetreat = decisions.nextInt();
 						}
 						
-						a.numNorse -= numFlee;
-						choices[2] -= numFlee;
+						System.out.println("Which location would you like to retreat to?");
+						System.out.println(locations);
 						
-						System.out.println(numFlee + " Norsemen have fled (map locations are currently unimplemented).\n");
+						int location = decisions.nextInt();
+						
+						while (!locations.contains(location))
+						{
+							System.out.println("Invalid location. Try again.");
+							location = decisions.nextInt();
+						}
+						
+						a.numNorse -= numRetreat;
+						choices[2] -= numRetreat;
+						
+						Map.shireList.get(location - 1).defenders.numNorse = numRetreat;
+						
+						System.out.println(numRetreat + " Norsemen have fled to " + location + ".\n");
 					}
 				}
 			}
 			else
 			{
-				System.out.println("English, would you like to stay or flee?");
+				System.out.println("English, would you like to stay or retreat?");
 				System.out.println("(" + choices[1] + " choices left for Housecarls and " + choices[2] + " choices left for Thegns.)");
 				
 				@SuppressWarnings("resource")
 				Scanner decisions = new Scanner(System.in);
 				String choice = decisions.nextLine();
 				
-				while (!choice.equals("stay") && !choice.equals("flee"))
+				while (!choice.equals("stay") && !choice.equals("retreat"))
 				{
 					System.out.println("Invalid decision. Try again.");
 					choice = decisions.nextLine();
@@ -243,7 +288,7 @@ public class BattleMain
 				}
 				else
 				{
-					System.out.println("Which unit type would you like to flee?");
+					System.out.println("Which unit type would you like to retreat?");
 					
 					choice = decisions.nextLine();
 					
@@ -255,52 +300,70 @@ public class BattleMain
 					}
 					if (choice.equals("Housecarls"))
 					{
-						System.out.println("How many Housecarls would you like to flee?");
+						System.out.println("How many Housecarls would you like to retreat?");
 						
-						int numFlee = decisions.nextInt();
+						int numRetreat = decisions.nextInt();
 						
-						while (numFlee <= 0 || numFlee > choices[1])
+						while (numRetreat <= 0 || numRetreat > choices[1])
 						{
 							System.out.println("Invalid number. Try again.");
-							numFlee = decisions.nextInt();
+							numRetreat = decisions.nextInt();
 						}
 						
-						a.numHouse -= numFlee;
-						choices[1] -= numFlee;
+						System.out.println("Which location would you like to retreat to?");
+						System.out.println(locations);
 						
-						System.out.println(numFlee + " Housecarls have fled (map locations are currently unimplemented).\n");
+						int location = decisions.nextInt();
+						
+						while (!locations.contains(location))
+						{
+							System.out.println("Invalid location. Try again.");
+							location = decisions.nextInt();
+						}
+						
+						a.numHouse -= numRetreat;
+						choices[1] -= numRetreat;
+						
+						Map.shireList.get(location - 1).defenders.numHouse = numRetreat;
+						
+						System.out.println(numRetreat + " Housecarls have fled to " + location + ".\n");
 						
 					}
 					else
 					{
-						System.out.println("How many Thegns would you like to flee?");
+						System.out.println("How many Thegns would you like to retreat?");
 						
-						int numFlee = decisions.nextInt();
+						int numRetreat = decisions.nextInt();
 						
-						while (numFlee <= 0 || numFlee > choices[2])
+						while (numRetreat <= 0 || numRetreat > choices[2])
 						{
 							System.out.println("Invalid number. Try again.");
-							numFlee = decisions.nextInt();
+							numRetreat = decisions.nextInt();
 						}
 						
-						a.numThegn -= numFlee;
-						choices[2] -= numFlee;
+						System.out.println("Which location would you like to retreat to?");
+						System.out.println(locations);
 						
-						System.out.println(numFlee + " Thegns have fled (map locations are currently unimplemented).\n");
+						int location = decisions.nextInt();
+						
+						while (!locations.contains(location))
+						{
+							System.out.println("Invalid location. Try again.");
+							location = decisions.nextInt();
+						}
+						
+						a.numThegn -= numRetreat;
+						choices[2] -= numRetreat;
+						
+						Map.shireList.get(location - 1).defenders.numThegn = numRetreat;
+						
+						System.out.println(numRetreat + " Thegns have fled to " + location + ".\n");
 					}
 				}
 			}
 		}
 	}
 	
-	/** Returns the number of kills, number of choices for troop 1, and number of choices for troop 2 in an array. <p>
-	 * Dice roll from 1-6: <p>
-	 * Berserkers: 1-4 == Kill, 5-6 == Choice <p>
-	 * Norsemen: 1-3 == Kill, 4-5 == Choice, 6 == Flee <p>
-	 * Housecarls: 1-3 == Kill, 4-5 == Choice, 6 == Flee <p>
-	 * Therns: 1-2 == Kill, 3-4 == Choice, 5-6 == Flee <p>
-	 * Fyrd: 1-2 == Kill, 3-5 == Flee, 6 == none <p>
-	 */
 	public static int[] rollDice(Army a)
 	{
 		int[] result = new int[3];
