@@ -30,7 +30,7 @@ public class Army
 		}
 		else
 		{
-			return "Nation: " + nation + "\nLeader: " + (leader != null ? leader.name : "none") + "\nHouseCarl: " + numHouse + "\nThern: " + numThegn;
+			return "Nation: " + nation + "\nLeader: " + (leader != null ? leader.name : "none") + "\nHouseCarl: " + numHouse + "\nThegn: " + numThegn;
 		}
 	}
 }
