@@ -21,6 +21,21 @@ public class Army
 			numThegn = troops2;
 		}
 	}
+	public Army(Army a)
+	{
+		nation = a.nation;
+		
+		if (nation.equals("Vikings"))
+		{
+			numBerserk = a.numBerserk;
+			numNorse = a.numNorse;
+		}
+		else
+		{
+			numHouse = a.numHouse;
+			numThegn = a.numThegn;
+		}
+	}
 	
 	public String toString()
 	{
