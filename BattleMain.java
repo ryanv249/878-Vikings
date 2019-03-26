@@ -11,8 +11,8 @@ public class BattleMain
 	public static void main(String[] args)
 	{
 		Shire s = Map.shireList.get(0);
-		Army v = new Army("Vikings", 2, 4);
-		Army e = new Army("English", 4, 6);
+		Army v = new Army("Vikings", 3, 5);
+		Army e = new Army("English", 10, 12);
 		
 		v.leader = Deck.pickCard(Deck.leaderCards);
 		v.numBerserk += v.leader.numBerserk;
@@ -23,19 +23,160 @@ public class BattleMain
 		System.out.println(v + "\n\n" + e);
 	}
 	
+	public static void moveArmy(Army a, Shire start, Shire end)
+	{
+		Army stayed = new Army(a.nation, 0, 0);
+		Army moved = new Army(start.defenders);
+		
+		if (a.nation.equals("Vikings"))
+		{
+			System.out.println("Vikings, would you like to leave any of your units behind?");
+			System.out.print("(" + a.numBerserk + " Berserkers and " + a.numNorse + " Norsemen remaining.)");
+			
+			@SuppressWarnings("resource")
+			Scanner decisions = new Scanner(System.in);
+			String choice = decisions.nextLine();
+			
+			while (!choice.equals("yes") && !choice.equals("no"))
+			{
+				System.out.println("Invalid choice. Try again.");
+				choice = decisions.nextLine();
+			}
+			if (choice.equals("yes"))
+			{
+				if (a.numBerserk > 0)
+				{
+					System.out.println("How many Berserkers would you like to leave behind?");
+					stayed.numBerserk = decisions.nextInt();
+					
+					while (stayed.numBerserk < 0 && stayed.numBerserk > a.numBerserk)
+					{
+						System.out.println("Invalid number. Try again.");
+						stayed.numBerserk = decisions.nextInt();
+					}
+					
+					moved.numBerserk -= stayed.numBerserk;
+				}
+				if (a.numNorse > 0)
+				{
+					System.out.println("How many Norsemen would you like to leave behind?");
+					stayed.numNorse = decisions.nextInt();
+					
+					while (stayed.numNorse < 0 && stayed.numNorse > a.numNorse)
+					{
+						System.out.println("Invalid number. Try again.");
+						stayed.numNorse = decisions.nextInt();
+					}
+					
+					moved.numNorse -= stayed.numNorse;
+				}
+			}
+		}
+		else
+		{
+			System.out.println("English, would you like to leave any of your units behind?");
+			System.out.print("(" + a.numHouse + " Housecarls and " + a.numThegn + " Thegns remaining.)");
+			
+			@SuppressWarnings("resource")
+			Scanner decisions = new Scanner(System.in);
+			String choice = decisions.nextLine();
+			
+			while (!choice.equals("yes") && !choice.equals("no"))
+			{
+				System.out.println("Invalid choice. Try again.");
+				choice = decisions.nextLine();
+			}
+			if (choice.equals("yes"))
+			{
+				if (a.numHouse > 0)
+				{
+					System.out.println("How many Housecarls would you like to leave behind?");
+					stayed.numHouse = decisions.nextInt();
+					
+					while (stayed.numHouse < 0 && stayed.numHouse > a.numHouse)
+					{
+						System.out.println("Invalid number. Try again.");
+						stayed.numHouse = decisions.nextInt();
+					}
+					
+					moved.numHouse -= stayed.numHouse;
+				}
+				if (a.numThegn > 0)
+				{
+					System.out.println("How many Thegns would you like to leave behind?");
+					stayed.numThegn = decisions.nextInt();
+					
+					while (stayed.numThegn < 0 && stayed.numThegn > a.numThegn)
+					{
+						System.out.println("Invalid number. Try again.");
+						stayed.numThegn = decisions.nextInt();
+					}
+					
+					moved.numThegn -= stayed.numThegn;
+				}
+			}
+		}
+		
+		interArmy();
+	}
+	
+	public static void interArmy()
+	{
+		
+	}
+	
 	public static void startBattle(Army attacker, Army defender, Shire area)
 	{
 		if (attacker.nation.equals("Vikings"))
 		{
 			defender.numFyrd = Deck.pickCard(Deck.fyrdCards);
 			
-			killUnits(attacker, defender, area);
-			killUnits(defender, attacker, area);
+			while ((attacker.numBerserk > 0 || attacker.numNorse > 0) && (defender.numHouse > 0 || defender.numThegn > 0 || defender.numFyrd > 0))
+			{
+				killUnits(attacker, defender, area);
+				killUnits(defender, attacker, area);
+			}
+			
+			if (attacker.numBerserk > 0 || attacker.numNorse > 0)
+			{
+				System.out.println("Vikings win this battle.\n");
+				area.defenders = attacker;
+			}
+			else
+			{
+				System.out.println("English win this battle.\n");
+				area.defenders = defender;
+			}
 		}
 		else
 		{
-			killUnits(attacker, defender, area);
-			killUnits(defender, attacker, area);
+			while ((attacker.numHouse > 0 || attacker.numThegn > 0) && (defender.numBerserk > 0 || defender.numNorse > 0))
+			{
+				killUnits(attacker, defender, area);
+				killUnits(defender, attacker, area);
+			}
+			
+			if (attacker.numHouse > 0 || attacker.numThegn > 0)
+			{
+				System.out.println("English win this battle.\n");
+				area.defenders = attacker;
+			}
+			else
+			{
+				System.out.println("Vikings win this battle.\n");
+				area.defenders = defender;
+			}
+		}
+		
+		if (!area.name.isEmpty() && area.defenders.nation.equals("Vikings"))
+		{
+			System.out.println("Vikings now have control over " + area.name + ".\n");
+			area.isControlled = true;
+		}
+		else if (area.isControlled && area.defenders.nation.equals("English"))
+		{
+			System.out.println("English have regained control over " + area.name + ".\n");
+			area.isControlled = false;
 		}
 	}
 	
