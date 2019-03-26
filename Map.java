@@ -5,7 +5,8 @@ import java.util.Arrays;
 
 public class Map
 {
-	static ArrayList<Shire> shireList = new ArrayList<Shire>(Arrays.asList(new Shire(1, "Kingdom of Northumbria", "", "", new Army("English", 0, 0), new ArrayList<Integer>(Arrays.asList(2, 3, 4)), 0, 0, false, false, false),
+	static ArrayList<Shire> shireList = new ArrayList<Shire>(Arrays.asList(new Shire(0, "The Void", "Testing Shire", "", new Army("English", 0, 0), new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63)), 0, 0, false, false, false),
+																		   new Shire(1, "Kingdom of Northumbria", "", "", new Army("English", 0, 0), new ArrayList<Integer>(Arrays.asList(2, 3, 4)), 0, 0, false, false, false),
 																		   new Shire(2, "Kingdom of Northumbria", "Durham", "North Sea", new Army("English", 0, 1), new ArrayList<Integer>(Arrays.asList(1, 3)), 0, 0, false, false, false),
 																		   new Shire(3, "Kingdom of Northumbria", "", "North Sea", new Army("English", 0, 0), new ArrayList<Integer>(Arrays.asList(1, 2, 4, 10, 11, 13, 15, 16)), 0, 0, false, false, false),
 																		   new Shire(4, "Kingdom of Northumbria", "Carlisle", "Irish Sea", new Army("English", 0, 1), new ArrayList<Integer>(Arrays.asList(1, 3, 5, 6, 9, 10)), 0, 1, false, false, false),
