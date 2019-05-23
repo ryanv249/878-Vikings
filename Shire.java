@@ -9,9 +9,9 @@ public class Shire
 	Army defenders;
 	ArrayList<Integer> adjacentShires;
 	int reinforceHouse, reinforceThegn;
-	boolean isControlled, isMarsh, isCeolwulf;
+	boolean isMarsh, isCeolwulf;
 	
-	public Shire(int location, String group, String name, String coast, Army defenders, ArrayList<Integer> adjacentShires, int reinforceHouse, int reinforceThegn, boolean isControlled, boolean isMarsh, boolean isCeolwulf)
+	public Shire(int location, String group, String name, String coast, Army defenders, ArrayList<Integer> adjacentShires, int reinforceHouse, int reinforceThegn, boolean isMarsh, boolean isCeolwulf)
 	{
 		this.location = location;
 		this.group = group;
@@ -21,8 +21,45 @@ public class Shire
 		this.adjacentShires = adjacentShires;
 		this.reinforceHouse = reinforceHouse;
 		this.reinforceThegn = reinforceThegn;
-		this.isControlled = isControlled;
 		this.isMarsh = isMarsh;
 		this.isCeolwulf = isCeolwulf;
+	}
+	
+	public boolean isCity()
+	{
+		return !name.isEmpty();
+	}
+	
+	public boolean isCoastal()
+	{
+		return !coast.isEmpty();
+	}
+	
+	public boolean isHub()
+	{
+		return (reinforceHouse > 0 || reinforceThegn > 0);
+	}
+	
+	public boolean isControlled()
+	{
+		return (isCity() && defenders.hasVikings());
+	}
+	
+	public Battle inBattle()
+	{
+		for (int i = 0; i < Battle.battles.size(); i++)
+		{
+			if (Battle.battles.get(i).area.equals(this))
+			{
+				return Battle.battles.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	public String toString()
+	{
+		return "[" + location + "]: " + group + (isCity() ? (", " + name) : "") + (isCoastal() ? " (" + coast + "). " : ". ") + (inBattle() != null ? inBattle().toString().substring(6) : defenders) + " Adjacent Shires: " + adjacentShires + (isHub() ? (" RH: " + reinforceHouse + " RT: " + reinforceThegn) : "") + (isMarsh ? " <Marsh>" : "") + (isCeolwulf ? " <Ceolwulf>" : "");
 	}
 }
